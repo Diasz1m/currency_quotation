@@ -14,4 +14,20 @@ router.get("/api/", (request: Request, response: Response) => {
   })
 });
 
+router.get("api/days:", (request: Request, response: Response) => {
+	try {
+			const params = request.body.data;
+			axios.get(process.env.URL + "json/daily:" + parmas.moeda + "/:" + params.dias).then(async (res: any) => {
+				if(!res.data) throw new Exception(response.getError());
+				
+				response.status(200).send(res.data);
+		})
+	}
+	catch($e)
+	{
+		response.status(300).send($e.getError());
+	}
+
+})
+
 module.exports = router;

@@ -13,7 +13,7 @@ app.set('views', 'src/views');
 
 
 app.get('/view', (req: Request, res: any) => {
-  console.log(app.get('views'));
+//  console.log(app.get('views'));
   
   res.render('index');
 })
