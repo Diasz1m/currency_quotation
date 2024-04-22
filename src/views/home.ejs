@@ -6,16 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moedas</title>
 </head>
-
+<script>
+    document.querySelector('#submit').addEventListener('click', async (e) => {
+        alert('cai aq')
+        try {
+            let data = document.querySelector('#convert').nodeValue();
+            console.log(data);
+            const resp = await fetch('/call/api:' + data);
+            if(!resp.success) throw new Error(resp.message);
+        } catch(e)
+        {
+            return e.getMessage();
+        }
+    });
+</script>
 <body>
 
-    <form id="form" action="">
+    <form id="form">
         <select type="select" id="convert" name="convert">
             <option value="USD-BRL">USD-BRL</option>
             <option value="BRL-USD">BRL-USD</option>
             <option value="EUR=USD">EUR=USD</option>
         <select>
-            <input type="button" value="submit">
+            <button type="submit" id="submit">
 </form>
 
 </body>
