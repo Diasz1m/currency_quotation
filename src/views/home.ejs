@@ -1,35 +1,53 @@
 <!DOCTYPE html>
-	<html lang="pt-br">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moedas</title>
 </head>
-<script>
-    document.querySelector('#submit').addEventListener('click', async (e) => {
-        alert('cai aq')
-        try {
-            let data = document.querySelector('#convert').nodeValue();
-            console.log(data);
-            const resp = await fetch('/call/api:' + data);
-            if(!resp.success) throw new Error(resp.message);
-        } catch(e)
-        {
-            return e.getMessage();
-        }
-    });
-</script>
+
 <body>
 
     <form id="form">
-        <select type="select" id="convert" name="convert">
+        <input type="text" id="valJ">
+        <select id="convert" name="convert">
             <option value="USD-BRL">USD-BRL</option>
             <option value="BRL-USD">BRL-USD</option>
-            <option value="EUR=USD">EUR=USD</option>
-        <select>
-            <button type="submit" id="submit">
-</form>
+            <option value="EUR-USD">EUR-USD</option>
+        </select>
+        <button type="submit" id="submit">Enviar</button>
+    </form>
+
+    <script>
+        // Certifique-se de que o DOM esteja carregado antes de executar o código
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.getElementById('submit');
+
+            button.addEventListener("click", function (event) {
+                event.preventDefault(); // Evita o envio do formulário
+            });
+
+            document.querySelector('#submit').addEventListener('click', async (e) => {
+                e.preventDefault(); // Evita o comportamento padrão do botão
+                alert('Executando chamada API');
+                try {
+                    let data = document.querySelector('#convert').value; // Use .value para inputs
+                    const resp = await fetch('/call/api', {
+                        method: 'post',
+                        headers:{ "Content-Type": 'application/json'},
+                        body: JSON.stringify({data})
+                    });
+                    console.log(resp)
+                    if (!resp.ok) throw new Error('Erro na requisição');
+                    const result = await resp.json();
+                    console.log(result);
+                } catch (e) {
+                    console.error(e.message);
+                }
+            });
+        });
+    </script>
 
 </body>
 
