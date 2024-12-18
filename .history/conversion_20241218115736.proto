@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+service ConversionService {
+  rpc GetLastConversion (ConversionRequest) returns (ConversionResponse);
+  rpc GetDailyConversion (DailyConversionRequest) returns (ConversionResponse);
+}
+
+message ConversionRequest {
+  string convert = 1;
+}
+
+message DailyConversionRequest {
+  string moeda = 1;
+  int32 dias = 2;
+}
+
+message ConversionResponse {
+  string data = 1;
+}

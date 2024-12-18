@@ -33,10 +33,9 @@ import * as protoLoader from '@grpc/proto-loader';
 import axios from 'axios';
 import path from 'path';
 
-// Caminho para o arquivo `.proto`
-const PROTO_PATH = path.join(__dirname, '../conversion.proto');
+const PROTO_PATH = path.join(__dirname, './conversion.proto');
 
-// Configuração do carregador do Proto
+// Carregando o proto com configurações explícitas
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,
@@ -45,21 +44,21 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   oneofs: true,
 });
 
-// Carregar o pacote gRPC e extrair o serviço
-const protoDescriptor = grpc.loadPackageDefinition(packageDefinition) as any;
-const ConversionService = protoDescriptor.ConversionService;
+// Converte o pacote carregado para um objeto gRPC
+const grpcObject = grpc.loadPackageDefinition(packageDefinition) as unknown as {
+  ConversionService: grpc.ServiceDefinition<any>;
+};
 
-// Criar uma instância do servidor gRPC
+
 const server = new grpc.Server();
 
-// Implementação dos métodos do serviço
-const serviceImplementation = {
-  GetLastConversion: (call: any, callback: any) => {
-    const { convert } = call.request;
+server.addService(grpcObject.ConversionService, {
+  GetLastConversion: (call: any, callback:any) => {
+    const convert = call.request.convert;
 
     axios
       .get(`${process.env.URL}json/last/${convert}`)
-      .then((res) => {
+      .then((res: any) => {
         if (!res.data) {
           return callback({
             code: grpc.status.NOT_FOUND,
@@ -76,12 +75,12 @@ const serviceImplementation = {
       });
   },
 
-  GetDailyConversion: (call: any, callback: any) => {
+  GetDailyConversion: (call: any, callback:any) => {
     const { moeda, dias } = call.request;
 
     axios
       .get(`${process.env.URL}json/daily:${moeda}/:${dias}`)
-      .then((res) => {
+      .then((res: any) => {
         if (!res.data) {
           return callback({
             code: grpc.status.NOT_FOUND,
@@ -97,16 +96,14 @@ const serviceImplementation = {
         });
       });
   },
-};
+});
 
-// Adicionar o serviço ao servidor
-server.addService(ConversionService.service, serviceImplementation);
 
-// Iniciar o servidor
+// Iniciando o servidor gRPC
 server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), (err, port) => {
   if (err) {
     console.error(`Error starting server: ${err.message}`);
     return;
   }
-  console.log(`Server running at http://127.0.0.1:50051`);
+  console.log(`Server running at http://127.0.0.1:${port}`);
 });

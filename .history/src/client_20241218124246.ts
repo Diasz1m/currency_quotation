@@ -3,7 +3,7 @@ import * as protoLoader from '@grpc/proto-loader';
 import path from 'path';
 
 // Caminho para o arquivo `.proto`
-const PROTO_PATH = path.join(__dirname, '../conversion.proto');
+const PROTO_PATH = path.join(__dirname, './conversion.proto');
 
 // Carregar definições do Proto
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -22,7 +22,7 @@ const ConversionService = protoDescriptor.ConversionService;
 
 // Criação do cliente
 const client = new ConversionService(
-  '127.0.0.1:50051',
+  'localhost:50051',
   grpc.credentials.createInsecure()
 );
 

@@ -34,7 +34,7 @@ import axios from 'axios';
 import path from 'path';
 
 // Caminho para o arquivo `.proto`
-const PROTO_PATH = path.join(__dirname, '../conversion.proto');
+const PROTO_PATH = path.join(__dirname, './conversion.proto');
 
 // Configuração do carregador do Proto
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -108,5 +108,6 @@ server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), (er
     console.error(`Error starting server: ${err.message}`);
     return;
   }
-  console.log(`Server running at http://127.0.0.1:50051`);
+  console.log(`Server running at http://127.0.0.1:${port}`);
+  server.start();
 });

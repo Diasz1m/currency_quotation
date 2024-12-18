@@ -22,7 +22,7 @@ const ConversionService = protoDescriptor.ConversionService;
 
 // Criação do cliente
 const client = new ConversionService(
-  '127.0.0.1:50051',
+  'localhost:50051',
   grpc.credentials.createInsecure()
 );
 

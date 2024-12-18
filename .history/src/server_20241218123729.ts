@@ -33,10 +33,9 @@ import * as protoLoader from '@grpc/proto-loader';
 import axios from 'axios';
 import path from 'path';
 
-// Caminho para o arquivo `.proto`
-const PROTO_PATH = path.join(__dirname, '../conversion.proto');
+const PROTO_PATH = path.join(__dirname, './conversion.proto');
 
-// Configuração do carregador do Proto
+// Carregar definições do Proto
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,
@@ -45,17 +44,21 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   oneofs: true,
 });
 
-// Carregar o pacote gRPC e extrair o serviço
-const protoDescriptor = grpc.loadPackageDefinition(packageDefinition) as any;
-const ConversionService = protoDescriptor.ConversionService;
+// Converte a definição do pacote em um objeto utilizável pelo gRPC
+const grpcObject = grpc.loadPackageDefinition(packageDefinition) as unknown as {
+  ConversionService: grpc.ServiceDefinition<any>;
+};
 
-// Criar uma instância do servidor gRPC
+// Acessar o serviço específico
+const ConversionService = grpcObject.ConversionService;
+
+// Criação do servidor gRPC
 const server = new grpc.Server();
 
 // Implementação dos métodos do serviço
-const serviceImplementation = {
-  GetLastConversion: (call: any, callback: any) => {
-    const { convert } = call.request;
+server.addService(ConversionService, {
+  GetLastConversion: (call, callback) => {
+    const convert = call.request.convert;
 
     axios
       .get(`${process.env.URL}json/last/${convert}`)
@@ -76,7 +79,7 @@ const serviceImplementation = {
       });
   },
 
-  GetDailyConversion: (call: any, callback: any) => {
+  GetDailyConversion: (call, callback) => {
     const { moeda, dias } = call.request;
 
     axios
@@ -97,10 +100,7 @@ const serviceImplementation = {
         });
       });
   },
-};
-
-// Adicionar o serviço ao servidor
-server.addService(ConversionService.service, serviceImplementation);
+});
 
 // Iniciar o servidor
 server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), (err, port) => {
@@ -108,5 +108,6 @@ server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), (er
     console.error(`Error starting server: ${err.message}`);
     return;
   }
-  console.log(`Server running at http://127.0.0.1:50051`);
+  console.log(`Server running at http://127.0.0.1:${port}`);
+  server.start();
 });
