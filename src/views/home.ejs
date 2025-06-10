@@ -20,7 +20,6 @@
     </form>
 
     <script>
-        // Certifique-se de que o DOM esteja carregado antes de executar o código
         document.addEventListener('DOMContentLoaded', function () {
             const button = document.getElementById('submit');
 
@@ -32,7 +31,7 @@
                 e.preventDefault(); // Evita o comportamento padrão do botão
                 alert('Executando chamada API');
                 try {
-                    let data = document.querySelector('#convert').value; // Use .value para inputs
+                    let data = document.querySelector('#convert').value;
                     const resp = await fetch('/call/api', {
                         method: 'post',
                         headers:{ "Content-Type": 'application/json'},
